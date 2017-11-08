@@ -1,14 +1,23 @@
 from flask import Flask, jsonify, request
+from server.user import make_user
+
+users = {}
 
 app = Flask(__name__)
 
 @app.route('/users', methods=['POST'])
 def create_user():
-    return jsonify(user_id='this is random')
+    user = make_user()
+    users[user.id] = user
+    return jsonify(user_id=user.id)
 
 @app.route('/users/<user_id>', methods=['GET'])
 def user_details(user_id):
-    return jsonify(balance=100)
+    if user_id not in users:
+        return jsonify(status='error', message='User not found'), 404
+
+    user = users[user_id]
+    return jsonify(balance=user.balance)
 
 @app.route('/games', methods=['POST'])
 def create_game():
