@@ -4,6 +4,7 @@ from server.clock import Clock
 from server.game import Game
 from server.user import make_user
 from server.serializer import serialize_game
+from server.util import compute_commitment
 
 CYCLE_LENGTH = 60
 BET = 1
@@ -96,8 +97,28 @@ def commit_guess(game_id):
 
 @app.route('/games/<game_id>/reveal', methods=['POST'])
 def reveal_guess(game_id):
+    if game_id > len(games):
+        return jsonify(status='error', message='Game not found'), 404
+
+    game = games[game_id - 1]
+
+    cycles_elapsed = game.cycles_elapsed(clock.current_cycle())
+    if (cycles_elapsed < 2 and len(game.bets) < game.players_count) or cycles_elapsed >= 4:
+        return jsonify(status='error', message='Invalid action'), 422
+
     reveal_params = request.json
 
-    print("Player {} revealing guess {}".format(reveal_params['user_id'], reveal_params['guess']))
+    broker_id = reveal_params['broker_id']
+    if broker_id != game.broker.id:
+        return jsonify(status='error', message='Invalid user'), 403
+
+    r = reveal_params['r']
+    position = reveal_params['position']
+    expected_commitment = compute_commitment(game.salt, r, position)
+
+    if expected_commitment != game.commitment:
+        return jsonify(status='error', message='Invalid commitment'), 422
+
+    game.position = position
 
     return jsonify(status='ok')
