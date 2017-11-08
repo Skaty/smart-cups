@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from server.clock import Clock
+from server.game import Game
 from server.user import make_user
 
 CYCLE_LENGTH = 30
@@ -7,6 +8,7 @@ CYCLE_LENGTH = 30
 clock = Clock(CYCLE_LENGTH)
 
 users = {}
+games = []
 
 app = Flask(__name__)
 
@@ -28,11 +30,20 @@ def user_details(user_id):
 def create_game():
     game_params = request.json
 
-    print("Broker: {}".format(game_params['broker_id']))
-    print("Cups: {}".format(game_params['cups_count']))
-    print("Players: {}".format(game_params['players_count']))
+    user_id = game_params['user_id']
+    if user_id not in users:
+        return jsonify(status='error', message='User not found'), 404
 
-    return jsonify(game_id=1)
+    broker        = users[user_id]
+    salt          = game_params['salt']
+    commitment    = game_params['commitment']
+    cups_count    = game_params['cups_count']
+    players_count = game_params['players_count']
+
+    game = Game(clock.current_cycle(), broker, salt, commitment, cups_count, players_count)
+    games.append(game)
+
+    return jsonify(game_id=len(games))
 
 @app.route('/games/<game_id>/commit', methods=['POST'])
 def commit_guess(game_id):
