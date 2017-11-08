@@ -8,4 +8,4 @@ class Clock:
 
     def current_cycle(self):
         now = time.monotonic()
-        return math.floor((now - self.first_tick) % self.cycle_length)
+        return math.floor((now - self.first_tick) / self.cycle_length)

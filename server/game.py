@@ -29,6 +29,9 @@ class Game:
         self.position      = None
         self.bets          = []
 
+    def cycles_elapsed(self, current_cycle):
+        return current_cycle - self.initial_cycle
+
     def current_state(self, current_cycle):
         pass
 
