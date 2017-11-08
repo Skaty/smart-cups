@@ -1,5 +1,10 @@
 from flask import Flask, jsonify, request
+from server.clock import Clock
 from server.user import make_user
+
+CYCLE_LENGTH = 30
+
+clock = Clock(CYCLE_LENGTH)
 
 users = {}
 
