@@ -152,6 +152,26 @@ def claim_reward(game_id):
 
     return jsonify(status='ok')
 
+@app.route('/games/<int:game_id>/refund_deposit', methods=['POST'])
+def refund_deposit(game_id):
+    if game_id > len(games):
+        return jsonify(status='error', message='Game not found'), 404
+
+    game = games[game_id - 1]
+
+    if game.cycles_elapsed(clock.current_cycle()) < 6 or game.ended:
+        return jsonify(status='error', message='Invalid action'), 422
+
+    game.ended = True
+
+    winning_bets_count = sum(bet.claimed for bet in game.bets)
+    refund_amount = (game.players_count - winning_bets_count) * REWARD
+    game.broker.balance += refund_amount
+
+    return jsonify(status='ok')
+
+@app.route('/games/<int:game_id>/')
+
 @app.route('/clock/tick', methods=['POST'])
 def next_tick():
     clock.tick()

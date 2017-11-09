@@ -28,6 +28,7 @@ class Game:
         self.players_count = players_count
         self.position      = None
         self.bets          = []
+        self.ended         = False
 
     def cycles_elapsed(self, current_cycle):
         return current_cycle - self.initial_cycle

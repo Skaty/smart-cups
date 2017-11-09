@@ -2,7 +2,11 @@ def serialize_user(user):
     return { 'id': user.id, 'balance': user.balance }
 
 def serialize_bet(bet):
-    return { 'user': serialize_user(bet.user), 'commitment': bet.commitment }
+    return {
+        'user': serialize_user(bet.user),
+        'commitment': bet.commitment,
+        'claimed': bet.claimed
+     }
 
 def serialize_game(game):
     return {
@@ -13,5 +17,6 @@ def serialize_game(game):
         'cups_count': game.cups_count,
         'players_count': game.players_count,
         'position': game.position,
-        'bets': list(map(serialize_bet, game.bets))
+        'bets': list(map(serialize_bet, game.bets)),
+        'ended': game.ended
     }
