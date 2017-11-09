@@ -170,7 +170,25 @@ def refund_deposit(game_id):
 
     return jsonify(status='ok')
 
-@app.route('/games/<int:game_id>/')
+@app.route('/games/<int:game_id>/forfeit', methods=['POST'])
+def forfeit_game(game_id):
+    if game_id > len(games):
+        return jsonify(status='error', message='Game not found'), 404
+
+    game = games[game_id - 1]
+
+    if game.cycles_elapsed(clock.current_cycle()) < 4 or game.position is not None or game.ended:
+        return jsonify(status='error', message='Invalid action'), 422
+
+    game.ended = True
+
+    committed_bets_count = len(game.bets)
+    payout_per_bet = game.players_count * REWARD / committed_bets_count
+
+    for bet in game.bets:
+        bet.user.balance += payout_per_bet
+
+    return jsonify(status='ok')
 
 @app.route('/clock/tick', methods=['POST'])
 def next_tick():
