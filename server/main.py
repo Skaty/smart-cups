@@ -130,6 +130,28 @@ def reveal_guess(game_id):
 
     return jsonify(status='ok')
 
+@app.route('/games/<int:game_id>/claim', methods=['POST'])
+def claim_reward(game_id):
+    if game_id > len(games):
+        return jsonify(status='error', message='Game not found'), 404
+
+    game = games[game_id - 1]
+
+    if game.position is None or game.cycles_elapsed(clock.current_cycle()) >= 6:
+        return jsonify(status='error', message='Invalid action'), 422
+
+    claim_params = request.json
+    user_id = claim_params['user_id']
+    r = claim_params['r']
+    expected_commitment = compute_commitment(game.salt, r, game.position)
+
+    for bet in game.bets:
+        if not bet.claimed and bet.commitment == expected_commitment and bet.user.id == user_id:
+            bet.user.balance += REWARD
+            bet.claimed = True
+
+    return jsonify(status='ok')
+
 @app.route('/clock/tick', methods=['POST'])
 def next_tick():
     clock.tick()

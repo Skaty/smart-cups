@@ -9,3 +9,4 @@ class Bet:
         self.state = BetState.PENDING
         self.user = user
         self.commitment = commitment
+        self.claimed = False
