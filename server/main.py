@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from server.bet import Bet
-from server.clock import Clock
+from server.clock import MockClock
 from server.game import Game
 from server.user import make_user
 from server.serializer import serialize_game
@@ -10,12 +10,16 @@ CYCLE_LENGTH = 60
 BET = 1
 REWARD = 2
 
-clock = Clock(CYCLE_LENGTH)
+clock = MockClock(CYCLE_LENGTH)
 
 users = {}
 games = []
 
 app = Flask(__name__)
+
+@app.route('/info', methods=['GET'])
+def system_info():
+    return jsonify(cycle=clock.current_cycle())
 
 @app.route('/users', methods=['POST'])
 def create_user():
@@ -95,7 +99,7 @@ def commit_guess(game_id):
 
     return jsonify(status='ok')
 
-@app.route('/games/<game_id>/reveal', methods=['POST'])
+@app.route('/games/<int:game_id>/reveal', methods=['POST'])
 def reveal_guess(game_id):
     if game_id > len(games):
         return jsonify(status='error', message='Game not found'), 404
@@ -104,6 +108,9 @@ def reveal_guess(game_id):
 
     cycles_elapsed = game.cycles_elapsed(clock.current_cycle())
     if (cycles_elapsed < 2 and len(game.bets) < game.players_count) or cycles_elapsed >= 4:
+        return jsonify(status='error', message='Invalid action'), 422
+
+    if game.position is not None:
         return jsonify(status='error', message='Invalid action'), 422
 
     reveal_params = request.json
@@ -121,4 +128,9 @@ def reveal_guess(game_id):
 
     game.position = position
 
+    return jsonify(status='ok')
+
+@app.route('/clock/tick', methods=['POST'])
+def next_tick():
+    clock.tick()
     return jsonify(status='ok')

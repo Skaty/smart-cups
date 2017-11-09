@@ -9,3 +9,13 @@ class Clock:
     def current_cycle(self):
         now = time.monotonic()
         return math.floor((now - self.first_tick) / self.cycle_length)
+
+class MockClock:
+    def __init__(self, cycle_length):
+        self.ticks = 0
+
+    def tick(self):
+        self.ticks += 1
+
+    def current_cycle(self):
+        return self.ticks
