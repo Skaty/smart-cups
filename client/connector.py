@@ -20,7 +20,7 @@ def handle_json_response(r):
             logging.warning("Got error: {}".format(r.json()['message']))
         except ValueError:
             logging.warning("No error from server!")
-        return {}
+        return None
 
 def create_user():
     '''Creates a new user'''
