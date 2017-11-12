@@ -1,23 +1,12 @@
-import random
-
 from Crypto.Hash import SHA3_256
-
-def randhex(size=1):
-    '''
-    Generates a random hexadecimal sequence of size length
-    Returns: random hexadecimal string
-    '''
-    result = []
-    for i in range(size):
-        result.append(str(random.choice("0123456789abcdef")))
-    return "".join(result)
+from uuid import uuid4 as uuid
 
 def get_commitment_digest(r, position):
     '''
     Generates commitment, given r and position.
     Returns: (salt, digest)
     '''
-    salt = randhex(32)
+    salt = uuid().hex
     plaintext = "{}{}{}".format(salt, r, position)
     return (salt, sha3_256(plaintext))
 
