@@ -27,6 +27,13 @@ def create_user():
     r = requests.post(urljoin(API_URL, 'users'))
     return handle_json_response(r)
 
+def get_user(uid):
+    '''Gets info regarding user'''
+    urn = '/'.join(['users', str(uid)])
+    r = requests.get(urljoin(API_URL, urn))
+
+    return handle_json_response(r)
+
 def create_game(uid, num_cups, num_players, rval, position):
     '''
     Creates a new cup shuffling game
