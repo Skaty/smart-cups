@@ -1,6 +1,12 @@
 from Crypto.Hash import SHA3_256
 from uuid import uuid4 as uuid
 
+def random_r():
+    '''
+    Generates random r value
+    '''
+    return uuid().hex
+
 def get_commitment_digest(r, position):
     '''
     Generates commitment, given r and position.

@@ -6,8 +6,10 @@ class UI(object):
         self.mapping = {**{'q': exit}, **mapping}
 
     def print_menu(self):
+        print('====== PTC CLIENT MENU ======')
         for cmd, helptext in self.help.items():
             print(cmd, ':', helptext)
+        print('====== PTC CLIENT MENU ======')
 
     def prompt(self):
         user_input = input('Select an option: ')
