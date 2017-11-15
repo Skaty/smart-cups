@@ -6,7 +6,7 @@ class User(object):
 
     def __str__(self):
         '''String representation of User'''
-        return '{} ({})'.format(self.uid, self.balance)
+        return '{} (Balance: {})'.format(self.uid, self.balance)
 
     def update(self, resp):
         '''Update user according to API response'''

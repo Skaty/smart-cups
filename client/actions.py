@@ -15,6 +15,7 @@ class Actions(object):
             'forfeit': self.forfeit_game,
             'pg': self.print_all_games,
             'pu': self.print_all_users,
+            'state': self.print_state,
             'tick': self.tick_clock,
         }
         self.helptext = {
@@ -25,6 +26,7 @@ class Actions(object):
             'cu' : 'Creates a number of users',
             'pg': 'Prints all games',
             'pu' : 'Prints all users',
+            'state': 'Prints the state of system',
             'tick': 'Advances PTC clock',
         }
 
@@ -108,6 +110,12 @@ class Actions(object):
         rval = self.get_bet(g_idx)['r']
 
         connector.claim_winnings(g_idx, usr_idx, rval)
+
+    def print_state(self):
+        print('====== LIST OF GAMES IN PTC ======')
+        print_all_games()
+        print('====== LIST OF USERS IN PTC ======')
+        print_all_users()
 
     def tick_clock(self):
         connector.advance_clock()
