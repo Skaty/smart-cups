@@ -20,6 +20,12 @@ class User(object):
             'pos': position
         }
 
+    def get_bet(self, gid):
+        if gid in self.bets:
+            return self.bets[gid]
+        else:
+            return None
+
     @staticmethod
     def from_response(resp):
         if 'user_id' not in resp:

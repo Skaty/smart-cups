@@ -108,7 +108,7 @@ def forfeit_game(gid):
     Forfeits the game
     '''
     urn = '/'.join(['games', str(gid), 'forfeit'])
-    r = requests.post(urljoin(API_URL, urn))  
+    r = requests.post(urljoin(API_URL, urn))
     return handle_json_response(r)
 
 def refund_deposit(gid):
@@ -116,14 +116,13 @@ def refund_deposit(gid):
     Broker gets deposit
     '''
     urn = '/'.join(['games', str(gid), 'refund_deposit'])
-    r = requests.post(urljoin(API_URL, urn))  
+    r = requests.post(urljoin(API_URL, urn))
     return handle_json_response(r)
-    
+
 def advance_clock():
     '''
     Advances PTC clock
     '''
     urn = '/'.join(['clock', 'tick'])
-    r = requests.post(urljoin(API_URL, urn))  
+    r = requests.post(urljoin(API_URL, urn))
     return handle_json_response(r)
-    

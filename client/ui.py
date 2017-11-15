@@ -18,10 +18,13 @@ class UI(object):
 
         if option not in self.mapping or len(signature(self.mapping[option]).parameters) != len(tokens) - 1:
             print('Invalid option!')
-        elif len(tokens) == 1:
+
+        print('====== PTC CLIENT OUTPUT ======')
+        if len(tokens) == 1:
             self.mapping[option]()
         else:
             self.mapping[option](*tokens[1:])
+        print('====== PTC CLIENT OUTPUT ======')
 
     def print_and_prompt(self):
         self.print_menu()

@@ -10,19 +10,32 @@ class Actions(object):
         self.actions = {
             'cu': self.create_users,
             'cg': self.create_game,
+            'claim': self.claim_game,
             'commit': self.commit_game,
+            'forfeit': self.forfeit_game,
             'pg': self.print_all_games,
             'pu': self.print_all_users,
             'tick': self.tick_clock,
         }
         self.helptext = {
             'cg' : 'Creates a new game (cg <number of cups> <player count> <winning position>)',
+            'claim': 'Claim winnings from a game (claim)',
             'commit' : 'Commits a bet (commit <guess>)',
+            'forfeit': 'Forfeits a game (forfeit)',
             'cu' : 'Creates a number of users',
             'pg': 'Prints all games',
             'pu' : 'Prints all users',
             'tick': 'Advances PTC clock',
         }
+
+    def prompt_choices(self, choice_fx, question_msg):
+        choice_fx()
+        raw_value = input(question_msg)
+        try:
+            return int(raw_value)
+        except ValueError:
+            print('Invalid choice. Please try again!')
+            return self.prompt_choices(choice_fx, limit, question_msg)
 
     def create_users(self, num):
         num = int(num)
@@ -39,8 +52,7 @@ class Actions(object):
             print(idx, ':', usr)
 
     def create_game(self, num_cups, num_players, position):
-        self.print_all_users()
-        broker_id = int(input('Please select a user as a broker: '))
+        broker_id = self.prompt_choices(self.print_all_users, 'Please select a user as a broker: ')
 
         if broker_id < 0 or broker_id >= len(self.users):
             print('Choice invalid!')
@@ -61,19 +73,40 @@ class Actions(object):
 
     def commit_game(self, guess):
         guess = int(guess)
-        self.print_all_games()
-        g_idx = int(input('Please select the game: '))
+        g_idx = self.prompt_choices(self.print_all_games, 'Please select the game: ')
         game = self.games[g_idx]
         gid = game[1]['game_id']
 
-        self.print_all_users()
-        usr_idx = int(input('Please select a user who is committing: '))
+        usr_idx = self.prompt_choices(self.print_all_users, 'Please select a user who is committing: ')
         usr = self.users[usr_idx]
 
         rval = utils.random_r()
         usr.add_bet(gid, rval, guess)
 
         connector.commit_game(gid, usr.uid, rval, guess)
+
+    def forfeit_game(self):
+        g_idx = self.prompt_choices(self.print_all_games, 'Please select the game: ')
+        connector.forfeit_game(g_idx)
+
+    def reveal_position(self):
+        uid = self.prompt_choices(self.print_all_users, 'Please select a user who is revealling: ')
+        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ')
+        bet = self.get_bet(g_idx)
+
+        connector.reveal_position(gid, uid, bet['r'], bet['pos'])
+
+    def refund_deposit(self):
+        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ')
+
+        connector.refund_deposit(gid)
+
+    def claim_game(self):
+        g_idx = self.prompt_choices(self.print_all_games, 'Please select the game: ')
+        usr_idx = self.prompt_choices(self.print_all_users, 'Please select a user who is claiming: ')
+        rval = self.get_bet(g_idx)['r']
+
+        connector.claim_winnings(g_idx, usr_idx, rval)
 
     def tick_clock(self):
         connector.advance_clock()
