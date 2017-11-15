@@ -3,7 +3,7 @@ from server.bet import Bet
 from server.clock import MockClock
 from server.game import Game
 from server.user import make_user
-from server.serializer import serialize_game
+from server.serializer import serialize_game, serialize_user
 from server.util import compute_commitment
 
 CYCLE_LENGTH = 60
@@ -21,6 +21,10 @@ app = Flask(__name__)
 def system_info():
     return jsonify(cycle=clock.current_cycle())
 
+@app.route('/users', methods=['GET'])
+def list_users():
+    return jsonify(list(map(serialize_user, users.values())))
+
 @app.route('/users', methods=['POST'])
 def create_user():
     user = make_user()
@@ -34,6 +38,10 @@ def user_details(user_id):
 
     user = users[user_id]
     return jsonify(balance=user.balance)
+
+@app.route('/games', methods=['GET'])
+def list_games():
+    return jsonify(list(map(serialize_game, games)))
 
 @app.route('/games', methods=['POST'])
 def create_game():
