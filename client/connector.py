@@ -34,6 +34,13 @@ def get_user(uid):
 
     return handle_json_response(r)
 
+def get_users():
+    '''Gets all users registered in PTC'''
+    urn = '/users'
+    r = requests.get(urljoin(API_URL, urn))
+
+    return handle_json_response(r) or []
+
 def create_game(uid, num_cups, num_players, rval, position):
     '''
     Creates a new cup shuffling game
@@ -57,6 +64,13 @@ def get_game(gid):
     '''
     urn = '/'.join(['games', str(gid)])
     r = requests.get(urljoin(API_URL, urn))
+    return handle_json_response(r)
+
+def get_games():
+    '''Gets all games registered in PTC'''
+    urn = '/games'
+    r = requests.get(urljoin(API_URL, urn))
+
     return handle_json_response(r)
 
 def commit_game(gid, uid, rval, guess):
