@@ -5,7 +5,7 @@ import connector, utils
 class Actions(object):
     def __init__(self):
         self.tick = 0
-        self.users = []
+        self.users = [User(x['id']) for x in connector.get_users()]
         self.games = []
         self.actions = {
             'cu': self.create_users,
@@ -43,6 +43,7 @@ class Actions(object):
         print("Created", num, "users!")
 
     def print_all_games(self):
+        self.games = connector.get_games()
         for idx, game in enumerate(self.games):
             print(idx, ':', game)
 
