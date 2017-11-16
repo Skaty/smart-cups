@@ -21,7 +21,7 @@ class UI(object):
             print(Back.RED + 'Invalid option!')
             return
 
-        resp_template = 'Server Response: '
+        resp_template = 'Server Response: {}'
         resp = ''
 
         print(Back.GREEN + '====== PTC CLIENT OUTPUT ======')

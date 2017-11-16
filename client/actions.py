@@ -88,6 +88,9 @@ class Actions(object):
 
         new_game_obj = connector.create_game(usr.uid, num_cups, num_players, rval, position)
 
+        if new_game_obj[1] is None:
+            return 'Unable to create game'
+
         self.games.append(new_game_obj)
         usr.add_bet(new_game_obj[1]['game_id'], rval, position)
 
