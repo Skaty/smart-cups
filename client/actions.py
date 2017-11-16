@@ -1,4 +1,5 @@
 from user import User
+from game import pretty_print_game
 
 import connector, utils
 
@@ -19,6 +20,7 @@ class Actions(object):
             'reveal': self.reveal_position,
             'state': self.print_state,
             'tick': self.tick_clock,
+            'user': self.private_print_user,
         }
         self.helptext = {
             'cg' : 'Creates a new game (cg <number of cups> <player count> <winning position>)',
@@ -32,6 +34,7 @@ class Actions(object):
             'reveal': 'Broker reveals the position',
             'state': 'Prints the state of system',
             'tick': 'Advances PTC clock',
+            'user': 'Print private information about user',
         }
 
     def prompt_choices(self, choice_fx, question_msg):
@@ -55,7 +58,7 @@ class Actions(object):
     def print_all_games(self):
         self.games = connector.get_games()
         for idx, game in enumerate(self.games):
-            print(idx, ':', game)
+            print(idx, ':', pretty_print_game(game))
 
         return len(self.games)
 
@@ -65,6 +68,10 @@ class Actions(object):
             print(idx, ':', usr)
 
         return len(self.users)
+
+    def private_print_user(self):
+        usr_idx = self.prompt_choices(self.print_all_users, 'Please select a user: ')
+        self.users[usr_idx].print_all()
 
     def create_game(self, num_cups, num_players, position):
         broker_id = self.prompt_choices(self.print_all_users, 'Please select a user as a broker: ')

@@ -8,6 +8,10 @@ class User(object):
         '''String representation of User'''
         return '{} (Balance: {})'.format(self.uid, self.balance)
 
+    def print_all(self):
+        print(self)
+        print('Bets: {}'.format(self.bets))
+
     def update(self, resp):
         '''Update user according to API response'''
         if 'balance' in resp:
