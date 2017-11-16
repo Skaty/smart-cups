@@ -3,7 +3,7 @@ from urllib.parse import urljoin
 import logging
 import requests
 
-from utils import get_commitment_digest
+from utils import get_commitment_digest, calculate_commitment
 
 '''
 Interfaces with the PTC
@@ -73,12 +73,12 @@ def get_games():
 
     return handle_json_response(r)
 
-def commit_game(gid, uid, rval, guess):
+def commit_game(gid, uid, gsalt, rval, guess):
     '''
     Bet on an ongoing cup shuffling game
-    Returns: (salt, response)
+    Returns: response
     '''
-    salt, commit = get_commitment_digest(rval, guess)
+    commit = calculate_commitment(gsalt, rval, guess)
     urn = '/'.join(['games', str(gid), 'commit'])
 
     payload = {
@@ -87,7 +87,7 @@ def commit_game(gid, uid, rval, guess):
     }
 
     r = requests.post(urljoin(API_URL, urn), json=payload)
-    return (salt, handle_json_response(r))
+    return handle_json_response(r)
 
 def reveal_position(gid, uid, rval, position):
     '''

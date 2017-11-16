@@ -13,8 +13,14 @@ def get_commitment_digest(r, position):
     Returns: (salt, digest)
     '''
     salt = uuid().hex
+    return (salt, calculate_commitment(salt, r, position))
+
+def calculate_commitment(salt, r, position):
+    '''
+    Calculates commitment for PTC
+    '''
     plaintext = "{}{}{}".format(salt, r, position)
-    return (salt, sha3_256(plaintext))
+    return sha3_256(plaintext)
 
 def sha3_256(text):
     '''Takes in string, return digest under SHA3-256'''

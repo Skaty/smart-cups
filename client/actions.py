@@ -15,6 +15,8 @@ class Actions(object):
             'forfeit': self.forfeit_game,
             'pg': self.print_all_games,
             'pu': self.print_all_users,
+            'refund': self.refund_deposit,
+            'reveal': self.reveal_position,
             'state': self.print_state,
             'tick': self.tick_clock,
         }
@@ -26,18 +28,24 @@ class Actions(object):
             'cu' : 'Creates a number of users',
             'pg': 'Prints all games',
             'pu' : 'Prints all users',
+            'refund': 'Refunds deposit to broker (after game ends)',
+            'reveal': 'Broker reveals the position',
             'state': 'Prints the state of system',
             'tick': 'Advances PTC clock',
         }
 
     def prompt_choices(self, choice_fx, question_msg):
-        choice_fx()
+        num_choices = choice_fx()
         raw_value = input(question_msg)
         try:
-            return int(raw_value)
+            int_value = int(raw_value)
+            if int_value >= 0 and int_value < num_choices:
+                return int_value
+            else:
+                raise ValueError
         except ValueError:
             print('Invalid choice. Please try again!')
-            return self.prompt_choices(choice_fx, limit, question_msg)
+            return self.prompt_choices(choice_fx, question_msg)
 
     def create_users(self, num):
         num = int(num)
@@ -49,10 +57,14 @@ class Actions(object):
         for idx, game in enumerate(self.games):
             print(idx, ':', game)
 
+        return len(self.games)
+
     def print_all_users(self):
         for idx, usr in enumerate(self.users):
             usr.update(connector.get_user(usr.uid))
             print(idx, ':', usr)
+
+        return len(self.users)
 
     def create_game(self, num_cups, num_players, position):
         broker_id = self.prompt_choices(self.print_all_users, 'Please select a user as a broker: ')
@@ -76,9 +88,8 @@ class Actions(object):
 
     def commit_game(self, guess):
         guess = int(guess)
-        g_idx = self.prompt_choices(self.print_all_games, 'Please select the game: ')
-        game = self.games[g_idx]
-        gid = game[1]['game_id']
+        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ') + 1
+        game = self.games[gid - 1]
 
         usr_idx = self.prompt_choices(self.print_all_users, 'Please select a user who is committing: ')
         usr = self.users[usr_idx]
@@ -86,36 +97,44 @@ class Actions(object):
         rval = utils.random_r()
         usr.add_bet(gid, rval, guess)
 
-        connector.commit_game(gid, usr.uid, rval, guess)
+        connector.commit_game(gid, usr.uid, game['salt'], rval, guess)
 
     def forfeit_game(self):
-        g_idx = self.prompt_choices(self.print_all_games, 'Please select the game: ')
-        connector.forfeit_game(g_idx)
+        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ') + 1
+        connector.forfeit_game(gid)
 
     def reveal_position(self):
-        uid = self.prompt_choices(self.print_all_users, 'Please select a user who is revealling: ')
-        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ')
-        bet = self.get_bet(g_idx)
+        usr_idx = self.prompt_choices(self.print_all_users, 'Please select a user who is revealling: ')
+        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ') + 1
+        usr = self.users[usr_idx]
+        bet = usr.get_bet(gid)
 
-        connector.reveal_position(gid, uid, bet['r'], bet['pos'])
+        connector.reveal_position(gid, usr.uid, bet['r'], bet['pos'])
 
     def refund_deposit(self):
-        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ')
+        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ') + 1
 
         connector.refund_deposit(gid)
 
     def claim_game(self):
-        g_idx = self.prompt_choices(self.print_all_games, 'Please select the game: ')
-        usr_idx = self.prompt_choices(self.print_all_users, 'Please select a user who is claiming: ')
-        rval = self.get_bet(g_idx)['r']
+        gid = self.prompt_choices(self.print_all_games, 'Please select the game: ') + 1
+        uid = self.prompt_choices(self.print_all_users, 'Please select a user who is claiming: ')
+        usr = self.users[uid]
+        bet_obj = usr.get_bet(gid)
+        rval = '0'
 
-        connector.claim_winnings(g_idx, usr_idx, rval)
+        if bet_obj is None:
+            rval = input('Please enter R value: ')
+        else:
+            rval = bet_obj['r']
+
+        connector.claim_winnings(gid, usr.uid, rval)
 
     def print_state(self):
         print('====== LIST OF GAMES IN PTC ======')
-        print_all_games()
+        self.print_all_games()
         print('====== LIST OF USERS IN PTC ======')
-        print_all_users()
+        self.print_all_users()
 
     def tick_clock(self):
         connector.advance_clock()
