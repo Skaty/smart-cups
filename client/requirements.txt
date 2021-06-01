@@ -4,4 +4,4 @@ colorama==0.3.9
 idna==2.6
 pycryptodome==3.4.7
 requests==2.18.4
-urllib3==1.22
+urllib3==1.26.5
